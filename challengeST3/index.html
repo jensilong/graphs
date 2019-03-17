@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Challenge ST3</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 50%; height: 50% }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+</head>
+<body>
+
+<script>
+
+    function regularPolygonGeometry(n, innerColor, outerColor) {
+
+        var geometry = new THREE.Geometry();
+        var radius = 2;
+        var origin = new THREE.Vector3(0,0,0);
+        geometry.vertices.push(origin);
+
+        var colors = [];
+        colors.push(new THREE.Color(innerColor)); //red
+        colors.push(new THREE.Color(outerColor));
+
+        for (var side = 1; side <= n; side++) {
+
+            var x = radius * Math.cos(2 * Math.PI * (side / n));
+            var y = radius * Math.sin(2 * Math.PI * (side / n));
+            var vertex = new THREE.Vector3(x, y, 0);
+
+            geometry.vertices.push(vertex);
+        }
+
+        for (var x = 0; x < n ; x++) {
+
+            var a = 0;
+            var b = x+1;
+            var c = x+2;
+
+            if(x == n-1){
+                c = 1;
+            }
+
+            var face = new THREE.Face3(a, b, c);
+            face.vertexColors.push(colors[0]);
+            face.vertexColors.push(colors[1]);
+            face.vertexColors.push(colors[1]);
+            geometry.faces.push(face);
+        }
+
+        geometry.computeBoundingSphere();
+        return geometry;
+    }
+
+
+    // Create scene
+    var scene = new THREE.Scene();
+
+    // Create Perspective Camera
+    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1500);
+    camera.position.set(0, 0, 10);
+
+    //Define Material
+    var material = new THREE.MeshBasicMaterial({
+        vertexColors: THREE.VertexColors,
+        side: THREE.DoubleSide
+    });
+
+    //Create polygon geometry
+    var geometry = regularPolygonGeometry(13,'red','blue');
+
+    //Create mesh
+    var polygon = new THREE.Mesh(geometry,material);
+    scene.add(polygon);
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild( renderer.domElement );
+
+    //Render scene
+    renderer.render(scene,camera);
+
+</script>
+</body>
+</html>
