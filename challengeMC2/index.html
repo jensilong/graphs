@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ChallengeMC2</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        canvas {
+            width: 50%;
+            height: 50%
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setting the scene
+        var scene = new THREE.Scene();
+
+        // Camera Object
+
+        var camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 1500);
+        camera.position.z = 69;
+        camera.position.x = 46;
+        camera.position.y = 54;
+        camera.lookAt(scene.position);
+        camera.updateMatrixWorld();
+
+        var light = new THREE.DirectionalLight(0xffffff, 0.8);
+        light.position.set(1, 10, 40);
+        scene.add(light);
+
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(10, 10, 5);
+        scene.add(spotLight);
+
+        function getRandomColor() {
+
+            var colors = [
+                "red",
+                "green",
+                "blue",
+                "yellow",
+                "cyan",
+                "magenta"
+            ];
+
+            var colorIndex = Math.floor(Math.random() * Math.floor(colors.length));
+
+            return colors[colorIndex];
+
+        }
+
+        function ziggurats(n, zheight, sf) {
+
+            for (var i = 0, y = 0, x = 2, z = 2; i < n; i++, y += zheight, x = x * sf, z = z * sf) {
+
+                var geom = new THREE.CubeGeometry(x, zheight, z);
+                mat = new THREE.MeshLambertMaterial({
+                    color: getRandomColor()
+                });
+
+                var rectangle = new THREE.Mesh(geom, mat);
+                rectangle.position.y = y;
+                scene.add(rectangle);
+
+            }
+
+        }
+
+        ziggurats(30, .2, .9);
+
+        var gui = new dat.GUI();
+
+        var cam = gui.addFolder('Camera');
+        cam.add(camera.position, 'y', 0, 100).listen();
+        cam.add(camera.position, 'z', 0, 100).listen();
+        cam.add(camera.position, 'x', 0, 100).listen();
+        cam.open();
+
+        var render = function() {
+
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+
+        };
+        render();
+    </script>
+</body>
+
+</html>

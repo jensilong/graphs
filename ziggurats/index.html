@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Ziggurat</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        canvas {
+            width: 50%;
+            height: 50%
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setting the scene
+        var scene = new THREE.Scene();
+
+        var camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 1500);
+        camera.position.z = 69;
+        camera.position.x = 46;
+        camera.position.y = 54;
+        camera.lookAt(scene.position);
+        camera.updateMatrixWorld();
+
+        var light = new THREE.DirectionalLight(0xffffff, 0.8);
+        light.position.set(1, 10, 40);
+        scene.add(light);
+
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(10, 10, 5);
+        scene.add(spotLight);
+
+        function getRandomColor() {
+
+            var colors = [
+                "red",
+                "green",
+                "blue",
+                "yellow",
+                "cyan",
+                "magenta"
+            ];
+
+            var colorIndex = Math.floor(Math.random() * Math.floor(colors.length));
+
+            return colors[colorIndex];
+
+        }
+
+        function createZiggurats() {
+
+            for (var i = 0, y = 0, x = 2; i < 20; i++, y += 0.2, x = x * 0.9) {
+
+                var geom = new THREE.CylinderGeometry(x, x, 0.2, 8);
+                var mat = new THREE.MeshLambertMaterial({
+                    color: getRandomColor(),
+                    transparent: true
+                });
+                mat.opacity = 0.6;
+                var cylinder = new THREE.Mesh(geom, mat);
+                cylinder.position.y = y;
+                scene.add(cylinder);
+
+            }
+
+        }
+
+        createZiggurats();
+
+        function createCylinder(controls) {
+
+            for (var i = 0, y = 0, x = 2; i < controls.nbrLevels; i++, y += controls.yHeight, x = x * controls.scaleFactor) {
+
+                var geom = new THREE.CylinderGeometry(x, x, controls.yHeight, controls.nbrSides);
+                var mat = new THREE.MeshLambertMaterial({
+                    color: getRandomColor(),
+                    transparent: true
+                });
+                mat.opacity = 0.6;
+
+                var cylinder = new THREE.Mesh(geom, mat);
+                cylinder.position.y = y;
+                scene.add(cylinder);
+
+            }
+
+        }
+
+        var step = 0;
+
+        var controls = new function() {
+
+            this.nbrSides = 8;
+            this.nbrLevels = 20;
+            this.yHeight = 0.2;
+            this.scaleFactor = 0.9;
+
+            this.redraw = function() {
+
+                for (let i = scene.children.length - 1; i >= 0; i--) {
+                    if (scene.children[i].type === "Mesh")
+                        scene.remove(scene.children[i]);
+                }
+
+                createCylinder(controls);
+            };
+
+            this.create = function() {
+                this.redraw();
+            };
+        };
+
+        var gui = new dat.GUI();
+
+        var cam = gui.addFolder('Camera');
+        cam.add(camera.position, 'y', 0, 100).listen();
+        cam.add(camera.position, 'z', 0, 100).listen();
+        cam.add(camera.position, 'x', 0, 100).listen();
+        cam.open();
+
+        gui.add(controls, 'nbrSides', 3, 20);
+        gui.add(controls, 'nbrLevels', 0, 40);
+        gui.add(controls, 'yHeight', 0, 40);
+        gui.add(controls, 'scaleFactor', 0, 20);
+        gui.add(controls, 'create').name('Create');
+
+        var render = function() {
+
+            requestAnimationFrame(render);
+            renderer.render(scene, camera);
+
+        };
+        render();
+    </script>
+</body>
+
+</html>

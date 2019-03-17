@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>ChallengeMC4</title>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        canvas {
+            width: 50%;
+            height: 50%
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+</head>
+
+<body>
+
+    <script>
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Setting the scene
+        var scene = new THREE.Scene();
+
+        // Camera Object
+
+        var camera = new THREE.PerspectiveCamera(10, window.innerWidth / window.innerHeight, 0.1, 1500);
+        camera.position.z = 69;
+        camera.position.x = 46;
+        camera.position.y = 54;
+        camera.lookAt(scene.position);
+        camera.updateMatrixWorld();
+
+        var light = new THREE.DirectionalLight(0xffffff, 0.8);
+        light.position.set(1, 10, 40);
+        scene.add(light);
+
+        var spotLight = new THREE.SpotLight(0xffffff);
+        spotLight.position.set(10, 10, 5);
+        scene.add(spotLight);
+
+        function createHelix(object, n, radius, angle, dist) {
+
+            var root = new THREE.Object3D();
+            var curAngle = 0; // rotation around central axis
+            var curDist = 0; // offset along central axis
+            var twoPi = 2 * Math.PI;
+            var child = null;
+            for (var i = 0; i < n; i++) {
+                var newobj = new THREE.Object3D();
+                if (object instanceof THREE.Object3D)
+                    child = object.clone();
+                else
+                    child = object(i);
+                newobj.add(child);
+
+                var x = radius * Math.cos(curAngle);
+                var y = radius * Math.sin(curAngle);
+
+                newobj.position.x = x;
+                newobj.position.y = y;
+                newobj.position.z = curDist;
+
+                root.add(newobj);
+                // ... update curAngle and curDist
+                curAngle += angle;
+                if (curAngle > twoPi)
+                    curAngle -= twoPi;
+                curDist += dist;
+            }
+            return root;
+
+        }
+
+        var mat = new THREE.MeshLambertMaterial({
+            color: 'blue'
+        });
+        var geom = new THREE.SphereGeometry(1, 12, 12);
+        var mesh = new THREE.Mesh(geom, mat);
+        var helix = createHelix(mesh, 49, 2, Math.PI / 4, 0.5);
+
+        scene.add(helix);
+
+        var gui = new dat.GUI();
+
+        var cam = gui.addFolder('Camera');
+        cam.add(camera.position, 'y', 0, 100).listen();
+        cam.add(camera.position, 'z', 0, 100).listen();
+        cam.add(camera.position, 'x', 0, 100).listen();
+        cam.open();
+
+        var render = function() {
+
+            requestAnimationFrame(render);
+
+            renderer.render(scene, camera);
+
+        };
+        render();
+    </script>
+</body>
+
+</html>
