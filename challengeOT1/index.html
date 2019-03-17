@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Challenge OT1</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 50%; height: 50% }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+</head>
+<body>
+
+<script>
+
+    function starburst(n,innerColor,outerColor){
+
+        var sphereGeometry = new THREE.SphereGeometry(2, 25, 25, 0, Math.PI * 2, 0, Math.PI * 2);
+
+        var colors = [];
+        colors.push(new THREE.Color(innerColor)); //red
+        colors.push(new THREE.Color(outerColor));
+
+        lines = [];
+
+        //generate lines within sphere
+        for(var i = 0 ; i < n ; i++){
+            var vertexIndex = Math.floor(Math.random() * (sphereGeometry.faces.length-1)) ;
+            var sphereFace = sphereGeometry.faces[vertexIndex];
+
+
+            line = new THREE.Geometry();
+            line.vertices.push(new THREE.Vector3(0,0,0));
+            line.vertices.push(new THREE.Vector3(sphereFace.normal.x, sphereFace.normal.y, sphereFace.normal.z));
+            line.colors = colors;
+
+            lines.push(line);
+        }
+
+        //provide list of lines representing the starburst
+        return lines;
+
+    }
+
+    function createLineMaterial() {
+
+        var material = new THREE.LineBasicMaterial({
+            opacity: 2,
+            linewidth: 10,
+            vertexColors: THREE.VertexColors
+        });
+
+        return material;
+    }
+
+    function createLineMesh(lines) {
+
+        meshList = [];
+        material = createLineMaterial();
+
+        for(var i = 0 ; i < lines.length ; i++) {
+            var mesh = new THREE.Line(lines[i], material);
+            meshList.push(mesh);
+        }
+
+        return meshList;
+    }
+
+    var scene = new THREE.Scene();
+
+    var camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 1000 );
+    camera.position.z = 10;
+    scene.add( camera );
+
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setClearColor(0xffffff);
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild( renderer.domElement );
+
+    lines = [];
+    lines = starburst(200,'red','green');
+
+    meshList = createLineMesh(lines);
+
+    for(var i = 0 ; i < meshList.length; i++) {
+        scene.add(meshList[i]);
+
+    }
+
+    renderer.render(scene, camera);
+    
+</script>
+</body>
+</html>
