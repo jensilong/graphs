@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <style>
+        body {
+            margin: 0;
+        }
+        
+        canvas {
+            width: 50%;
+            height: 50%
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r83/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+</head>
+
+<body>
+
+    <script>
+        
+        function getRandomColor(){
+  
+  var colors = [
+        "red",
+        "green",
+        "blue",
+        "yellow",
+        "cyan",
+        "magenta"
+  ];
+  
+  var colorIndex = Math.floor(Math.random() * Math.floor(colors.length));
+                              
+  return colors[colorIndex];
+  
+}
+
+function getRandomInt(minSide, maxSide){
+   
+   var randomNbr = Math.floor(Math.random() * maxSide) + minSide;
+   
+   return randomNbr;
+   
+}
+
+function createScene(nbrBoxes, minSide, maxSide, minHeight, maxHeight) {
+    var floorSide = 400;
+    var floorGeom = new THREE.PlaneGeometry(floorSide, floorSide);
+    var floorMat = new THREE.MeshBasicMaterial({color: 0x666666, side: THREE.DoubleSide});
+    var floor = new THREE.Mesh(floorGeom, floorMat);
+    
+    scene.add(floor);
+   
+    for (var i = 0; i < nbrBoxes; i++) {
+        xlen = getRandomInt(minSide, maxSide);
+        ylen = getRandomInt(minSide, maxSide);
+        zlen = getRandomInt(minHeight, maxHeight);
+        var boxGeom = new THREE.BoxGeometry(xlen, ylen, zlen);
+        var boxMat = new THREE.MeshLambertMaterial({color: getRandomColor(), transparent: true, opacity: 0.6});
+      
+        var box = new THREE.Mesh(boxGeom, boxMat);
+        box.position.x = getRandomInt(-(floorSide/2), floorSide);
+        box.position.y = getRandomInt(-(floorSide/2), floorSide);
+       
+        scene.add(box);
+        
+    }
+}
+
+//SCENE
+var scene = new THREE.Scene();
+
+var light = new THREE.DirectionalLight(0xffffff, 3.9);
+light.position.set(10,7,8);
+scene.add(light);
+
+var camera = new THREE.PerspectiveCamera(160, window.innerWidth/ window.innerHeight, 0.001 , 10000);
+
+camera.position.x = 3;
+camera.position.y = 2;
+camera.position.z = 63;
+
+createScene(100,5,20,5,60);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild( renderer.domElement );
+
+renderer.render(scene, camera);
+     
+    </script>
+</body>
+
+</html>
